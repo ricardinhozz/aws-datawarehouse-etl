@@ -24,8 +24,8 @@ def transform_data_from_api_1(api_data_1):
             "timezone": api_data_1.get("timezone")
         }
         
-        for k, v in top_level_cols.items():
-            df[k] = v
+        for c, v in top_level_cols.items():
+            df[c] = v
         
         cols_order = ["city", "lat", "lon", "country_code", "datetime", "temp", 
                     "description", "code", "timezone"]
