@@ -5,7 +5,6 @@ from datetime import date, timedelta
 
 API_KEY = os.getenv("WEATHER_API_KEY")
 
-
 today = date.today()
 yesterday = today - timedelta(days=1)
 
