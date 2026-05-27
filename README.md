@@ -49,25 +49,23 @@ An ETL pipeline that ingests hourly weather data from two public APIs, merges an
 ```
 aws-datawarehouse/
 ├── aws-datawarehouse-etl/
-│   ├── aws-datawarehouse-etl/
-│   │   ├── etl/
-│   │   │   ├── extract/
-│   │   │   │   ├── api1_extractor.py     #Weatherbit historical hourly API
-│   │   │   │   └── api2_extractor.py     #Open-Meteo forecast API
-│   │   │   ├── transform/
-│   │   │   │   └── data_transformer.py   #Normalize + merge both DataFrames
-│   │   │   └── load/
-│   │   │       ├── ddl.py                #CREATE TABLE statements
-│   │   │       ├── s3.py                 #S3 upload / delete helpers
-│   │   │       ├── redshift_sql.py       #COPY and MERGE SQL generators
-│   │   │       ├── redshift_loader.py    #Orchestrates S3 staging → Redshift
-│   │   │       └── data_loader.py        #Alternative loader (Redshift Data API)
-│   │   ├── main.py                       #Pipeline entry point
-│   │   └── requirements.txt
-│   └── keys.py                           #Local credentials (gitignored)
-└── dummy_data/                           #Sample CSVs for a banking star schema
-    ├── Dim*.csv                          #Dimension tables
-    └── Fact*.csv                         #Fact tables
+   ├── aws-datawarehouse-etl/
+   │   ├── etl/
+   │   │   ├── extract/
+   │   │   │   ├── api1_extractor.py     #Weatherbit historical hourly API
+   │   │   │   └── api2_extractor.py     #Open-Meteo forecast API
+   │   │   ├── transform/
+   │   │   │   └── data_transformer.py   #Normalize + merge both DataFrames
+   │   │   └── load/
+   │   │       ├── ddl.py                #CREATE TABLE statements
+   │   │       ├── s3.py                 #S3 upload / delete helpers
+   │   │       ├── redshift_sql.py       #COPY and MERGE SQL generators
+   │   │       ├── redshift_loader.py    #Orchestrates S3 staging → Redshift
+   │   │       └── data_loader.py        #Alternative loader (Redshift Data API)
+   │   ├── main.py                       #Pipeline entry point
+   │   └── requirements.txt
+   └── keys.py                           #Local credentials (gitignored)
+
 ```
 
 ---
@@ -164,16 +162,6 @@ Default values used in `main.py`:
 | Database | `dev` |
 | S3 Bucket | `api-warehouse-datac` |
 | Region | `us-east-1` |
-
----
-
-## Dummy Data
-
-The `dummy_data/` directory contains pipe-delimited sample CSVs modelling a **banking star schema**, useful for testing Redshift ingestion independently of the weather pipeline:
-
-**Dimensions:** `DimAccount`, `DimChannel`, `DimCurrency`, `DimCustomers`, `DimDate`, `DimInvestment`, `DimLoan`, `DimLocation`, `DimTransactionType`
-
-**Facts:** `FactTransactions`, `FactDailyBalances`, `FactInvestments`, `FactLoanPayments`, `FactCustomerInteraction`
 
 ---
 
