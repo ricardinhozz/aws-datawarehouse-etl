@@ -34,16 +34,21 @@ def load_dataframe(
 
     upload_df(df, s3_bucket, s3_key)
 
-    execute_sql(
-        copy_sql(staging_table, s3_path, iam_role),
-        database,
-        workgroup
-    )
+    try:
+        result = execute_sql(
+            copy_sql(staging_table, s3_path, iam_role),
+            database,
+            workgroup
+        )
+        if result["Status"] != "FINISHED":
+            raise RuntimeError(f"COPY failed with status: {result['Status']}")
 
-    execute_sql(
-        merge_sql(table, staging_table),
-        database,
-        workgroup
-    )
-
-    delete_object(s3_bucket, s3_key)
+        result = execute_sql(
+            merge_sql(table, staging_table),
+            database,
+            workgroup
+        )
+        if result["Status"] != "FINISHED":
+            raise RuntimeError(f"MERGE failed with status: {result['Status']}")
+    finally:
+        delete_object(s3_bucket, s3_key)

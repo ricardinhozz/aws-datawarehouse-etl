@@ -16,7 +16,8 @@ def upload_df(df, bucket, key):
     boto3.client("s3").put_object(
         Bucket=bucket,
         Key=key,
-        Body=buffer.getvalue()
+        Body=buffer.getvalue(),
+        ServerSideEncryption="AES256"
     )
 
 

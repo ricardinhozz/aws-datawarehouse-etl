@@ -1,2 +1,5 @@
+venv
+keys.py
 .env
-keys
+testing.ipynb
+dummy_data

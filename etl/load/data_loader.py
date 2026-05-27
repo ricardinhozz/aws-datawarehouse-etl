@@ -1,7 +1,15 @@
+import re
 import uuid
 import time
 import boto3
 from io import StringIO
+
+_SAFE_IDENTIFIER = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]{0,127}$')
+
+
+def _validate_identifier(name):
+    if not _SAFE_IDENTIFIER.match(name):
+        raise ValueError(f"Unsafe SQL identifier: {name!r}")
 
 
 def upload_df_to_s3(df, bucket, key):
@@ -13,7 +21,8 @@ def upload_df_to_s3(df, bucket, key):
     s3.put_object(
         Bucket=bucket,
         Key=key,
-        Body=csv_buffer.getvalue()
+        Body=csv_buffer.getvalue(),
+        ServerSideEncryption="AES256"
     )
 
 
@@ -68,15 +77,11 @@ def load_dataframe_to_redshift(
     workgroup_name=None,
     cluster_identifier=None
 ):
-    """
-    Main loader using Redshift Data API
-    """
+    _validate_identifier(table_name)
 
-    #unique S3 staging path
     s3_key = f"staging/{table_name}/{uuid.uuid4()}.csv"
     s3_path = f"s3://{s3_bucket}/{s3_key}"
 
-    # upload data
     upload_df_to_s3(df, s3_bucket, s3_key)
 
     copy_sql = f"""
@@ -90,13 +95,14 @@ def load_dataframe_to_redshift(
         BLANKSASNULL;
     """
 
-    result = execute_redshift_sql(
-        sql=copy_sql,
-        database=database,
-        workgroup_name=workgroup_name,
-        cluster_identifier=cluster_identifier
-    )
-
-    if result["Status"] != "FINISHED":
-        raise RuntimeError(f"COPY failed: {result}")
-print('teste')
+    try:
+        result = execute_redshift_sql(
+            sql=copy_sql,
+            database=database,
+            workgroup_name=workgroup_name,
+            cluster_identifier=cluster_identifier
+        )
+        if result["Status"] != "FINISHED":
+            raise RuntimeError(f"COPY failed with status: {result['Status']}")
+    finally:
+        boto3.client("s3").delete_object(Bucket=s3_bucket, Key=s3_key)

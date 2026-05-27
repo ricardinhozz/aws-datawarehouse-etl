@@ -81,7 +81,8 @@ def merge_and_deduplicate(df1, df2):
 
     df["datetime"] = pd.to_datetime(df["datetime"], errors="coerce")
 
-    #keep latest source (api_2 > api_1 if same datetime)
+    #keep latest source 
+    #(api_2 > api_1 if same datetime)
     df = (
         df.sort_values(["city", "datetime", "source"])
           .drop_duplicates(subset=["city", "datetime"], keep="last")
